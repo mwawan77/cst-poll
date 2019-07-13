@@ -1,1 +1,9 @@
 /* CSS for Back-end */
+
+.cst_poll_form input {
+    width: 70%;
+}
+
+.cst_poll_form .active_date {
+    width: 100px;
+}

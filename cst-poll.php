@@ -35,11 +35,14 @@ class Cst_Poll {
         add_action('admin_enqueue_scripts', array($this, 'enqueue_backend_css_js'));
         // Frontend css and js
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_css_js'));
+        // Add Widget
+        add_action( 'widgets_init', array($this, 'register_cst_poll_widget'));
 
         // Active Plugin Hook
         register_activation_hook(__FILE__, array($this, 'plugin_activate'));
         // Deactive Plugin Hook
         register_deactivation_hook(__FILE__, array($this, 'plugin_deactivate'));
+
     }
 
     /**
@@ -113,23 +116,23 @@ class Cst_Poll {
     {
 
         ?>
-        <table width="100%">
+        <table width="100%" class="cst_poll_form">
             <tr>
                 <td width="20%">Option 1</td>
-                <td><input style="width: 70%;" placeholder="Option 1" type="text" name="cst_poll_option1" id="cst_poll_option1" value="" />
+                <td><input placeholder="Option 1" type="text" name="cst_poll_option1" id="cst_poll_option1" value="" />
                 </td>
             </tr>
             <tr>
                 <td>Option 2</td>
-                <td><input style="width: 70%;" placeholder="Option 2"  type="text" name="cst_poll_option2" id="cst_poll_option1" value="" /></td>
+                <td><input placeholder="Option 2"  type="text" name="cst_poll_option2" id="cst_poll_option1" value="" /></td>
             </tr>
             <tr>
                 <td>Result</td>
-                <td><input style="width: 70%;" placeholder="Result"  type="text" name="cst_poll_result" id="cst_poll_result" value="" /></td>
+                <td><input placeholder="Result"  type="text" name="cst_poll_result" id="cst_poll_result" value="" /></td>
             </tr>
             <tr>
                 <td>Active Date</td>
-                <td><input style="width: 100px;" placeholder="Active Date"  type="text" name="cst_poll_active_date" id="cst_poll_active_date" value="" /></td>
+                <td><input class="active_date" placeholder="Active Date"  type="text" name="cst_poll_active_date" id="cst_poll_active_date" value="" /></td>
             </tr>
 
         </table>
@@ -157,8 +160,8 @@ class Cst_Poll {
     public function enqueue_backend_css_js()
     {
 
-        wp_register_style('cst_poll_backend_css', plugin_dir_url(__FILE__) . '/assets/css/admin.css', array(), null);
-        wp_register_script( 'cst_poll_backend_js', plugin_dir_url(__FILE__) . '/assets/js/admin.js', array(), null, true );
+        wp_register_style('cst_poll_backend_css', plugin_dir_url(__FILE__) . 'assets/css/admin.css', array(), null);
+        wp_register_script( 'cst_poll_backend_js', plugin_dir_url(__FILE__) . 'assets/js/admin.js', array(), null, true );
         wp_enqueue_script('jquery');
         wp_enqueue_style('cst_poll_backend_css');
         wp_enqueue_script('cst_poll_backend_js');
@@ -172,12 +175,23 @@ class Cst_Poll {
     public function enqueue_frontend_css_js()
     {
 
-        wp_register_style('cst_poll_frontend_css', plugin_dir_url(__FILE__) . '/assets/css/style.css', array(), null);
-        wp_register_script( 'cst_poll_frontend_js', plugin_dir_url(__FILE__) . '/assets/js/main.js', array(), null, true );
+        wp_register_style('cst_poll_frontend_css', plugin_dir_url(__FILE__) . 'assets/css/style.css', array(), null);
+        wp_register_script( 'cst_poll_frontend_js', plugin_dir_url(__FILE__) . 'assets/js/main.js', array(), null, true );
         wp_enqueue_script('jquery');
         wp_enqueue_style('cst_poll_frontend_css');
         wp_enqueue_script('cst_poll_frontend_js');
     }
+
+
+    /**
+     * Register cst_poll Widget
+     *
+     * @since 1.0.0
+     */
+    public function register_cst_poll_widget() {
+        register_widget( 'Cst_Poll_Widget' );
+    }
+
 
     /**
      * Plugin Activation
@@ -202,4 +216,8 @@ class Cst_Poll {
 
 }
 
+//include widgets
+include(plugin_dir_path(__FILE__) . 'inc/cst_poll_widget.php');
+
 new Cst_Poll();
+
