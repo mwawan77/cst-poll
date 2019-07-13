@@ -30,13 +30,18 @@ class Cst_Poll {
         // Add meta boxes
         add_action('add_meta_boxes', array($this, 'add_cst_poll_meta_boxes'));
         // Save cst_poll data
-        add_action('save_post_cst_poll', array($this, 'save_cst_poll'));
+        add_action('save_post_cst_poll', array($this, 'save_polling'));
         // Backend css and js
         add_action('admin_enqueue_scripts', array($this, 'enqueue_backend_css_js'));
         // Frontend css and js
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_css_js'));
         // Add Widget
         add_action( 'widgets_init', array($this, 'register_cst_poll_widget'));
+
+        // Add Active Date Column:
+        add_filter( 'manage_edit-cst_poll_columns', array($this, 'set_custom_activate_date_columns') );
+        add_action( 'manage_cst_poll_posts_custom_column' , array($this, 'custom_cst_poll_column'), 10, 2 );
+
 
         // Active Plugin Hook
         register_activation_hook(__FILE__, array($this, 'plugin_activate'));
@@ -114,41 +119,70 @@ class Cst_Poll {
      */
     public function cst_poll_meta_box_display($post)
     {
+        //set nonce field
+        wp_nonce_field('cst_poll_nonce', 'cst_poll_nonce_field');
+
+        //collect variables
+        $cst_poll_option1 = get_post_meta($post->ID, 'cst_poll_option1', true);
+        $cst_poll_option2 = get_post_meta($post->ID, 'cst_poll_option2', true);
+        $cst_poll_result = get_post_meta($post->ID, 'cst_poll_result', true);
+        $cst_poll_activate_date = get_post_meta($post->ID, 'cst_poll_activate_date', true);
 
         ?>
         <table width="100%" class="cst_poll_form">
             <tr>
                 <td width="20%">Option 1</td>
-                <td><input placeholder="Option 1" type="text" name="cst_poll_option1" id="cst_poll_option1" value="" />
+                <td><input placeholder="Option 1" type="text" name="cst_poll_option1" id="cst_poll_option1" value="<?php echo $cst_poll_option1; ?>" />
                 </td>
             </tr>
             <tr>
                 <td>Option 2</td>
-                <td><input placeholder="Option 2"  type="text" name="cst_poll_option2" id="cst_poll_option1" value="" /></td>
+                <td><input placeholder="Option 2"  type="text" name="cst_poll_option2" id="cst_poll_option1" value="<?php echo $cst_poll_option2; ?>" /></td>
             </tr>
             <tr>
                 <td>Result</td>
-                <td><input placeholder="Result"  type="text" name="cst_poll_result" id="cst_poll_result" value="" /></td>
+                <td><input placeholder="Result"  type="text" name="cst_poll_result" id="cst_poll_result" value="<?php echo $cst_poll_result; ?>" /></td>
             </tr>
             <tr>
                 <td>Active Date</td>
-                <td><input class="active_date" placeholder="Active Date"  type="text" name="cst_poll_active_date" id="cst_poll_active_date" value="" /></td>
+                <td><input class="active_date" placeholder="Active Date"  type="text" name="cst_poll_activate_date" id="cst_poll_activate_date" value="<?php echo $cst_poll_activate_date; ?>" /></td>
             </tr>
-
         </table>
-
         <?php
 
     }
 
     /**
-     * Save cst_poll
+     * Save cst_poll data
      *
      * @since 1.0.0
      * @param  string $post_id.
      * @return string
      */
-    public function save_cst_poll($post_id){
+    public function save_polling($post_id){
+        
+        //check for nonce
+        if(!isset($_POST['cst_poll_nonce_field'])){
+            return $post_id;
+        }
+        //verify nonce
+        if(!wp_verify_nonce($_POST['cst_poll_nonce_field'], 'cst_poll_nonce')){
+            return $post_id;
+        }
+        //check for autosave
+        if(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE){
+            return $post_id;
+        }
+
+        $cst_poll_option1 = isset($_POST['cst_poll_option1']) ? sanitize_text_field($_POST['cst_poll_option1']) : '';
+        $cst_poll_option2 = isset($_POST['cst_poll_option2']) ? sanitize_text_field($_POST['cst_poll_option2']) : '';
+        $cst_poll_result = isset($_POST['cst_poll_result']) ? sanitize_text_field($_POST['cst_poll_result']) : '';
+        $cst_poll_activate_date = isset($_POST['cst_poll_activate_date']) ? sanitize_text_field($_POST['cst_poll_activate_date']) : '';
+
+        update_post_meta($post_id, 'cst_poll_option1', $cst_poll_option1);
+        update_post_meta($post_id, 'cst_poll_option2', $cst_poll_option2);
+        update_post_meta($post_id, 'cst_poll_result', $cst_poll_result);
+        update_post_meta($post_id, 'cst_poll_activate_date', $cst_poll_activate_date);
 
     }
 
@@ -182,7 +216,6 @@ class Cst_Poll {
         wp_enqueue_script('cst_poll_frontend_js');
     }
 
-
     /**
      * Register cst_poll Widget
      *
@@ -190,6 +223,38 @@ class Cst_Poll {
      */
     public function register_cst_poll_widget() {
         register_widget( 'Cst_Poll_Widget' );
+    }
+
+    /**
+     * Set Column Activate Date
+     *
+     * @since 1.0.0
+     */
+    public function set_custom_activate_date_columns($columns) {
+
+        $columns = array(
+            'cb' => '&lt;input type="checkbox" />',
+            'title' => __( 'Polling' ),
+            'activate_date' => __( 'Active Date' ),
+            'date' => __( 'Date' )
+        );
+
+        return $columns;
+    }
+
+    /**
+     * Set Value for Column Activate Date
+     *
+     * @since 1.0.0
+     */
+    public function custom_cst_poll_column( $column, $post_id ) {
+        switch ( $column ) {
+
+            case 'activate_date' :
+                echo get_post_meta( $post_id , 'cst_poll_activate_date' , true );
+                break;
+
+        }
     }
 
 
