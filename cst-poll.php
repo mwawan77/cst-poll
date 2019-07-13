@@ -174,6 +174,9 @@ class Cst_Poll {
             return $post_id;
         }
 
+        // To Do
+        // add validation for over lapping Active Date
+
         $cst_poll_option1 = isset($_POST['cst_poll_option1']) ? sanitize_text_field($_POST['cst_poll_option1']) : '';
         $cst_poll_option2 = isset($_POST['cst_poll_option2']) ? sanitize_text_field($_POST['cst_poll_option2']) : '';
         $cst_poll_result = isset($_POST['cst_poll_result']) ? sanitize_text_field($_POST['cst_poll_result']) : '';
@@ -257,6 +260,14 @@ class Cst_Poll {
         }
     }
 
+    /**
+     * To Build Poll on Frontend
+     *
+     * @since 1.0.0
+     */
+    public function buildPoll() {
+
+    }
 
     /**
      * Plugin Activation

@@ -64,6 +64,9 @@ class Cst_Poll_Widget extends WP_widget
         $html .= 'Polling';
         $html .= $args['after_title'];
         //uses the main output function of the location class
+        // To Do
+        // create a function to build form or result
+        // it should on Cst_Poll
         $html .= 'sorry still on progress';
         $html .= $args['after_widget'];
 
