@@ -35,11 +35,11 @@ class Cst_Poll {
         add_action('admin_enqueue_scripts', array($this, 'enqueue_backend_css_js'));
         // Frontend css and js
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_css_js'));
-        // Frontend Display
-//        add_filter('the_content', array($this, 'prepend_location_meta_to_content'));
 
-        register_activation_hook(__FILE__, array($this, 'plugin_activate')); //activate hook
-        register_deactivation_hook(__FILE__, array($this, 'plugin_deactivate')); //deactivate hook
+        // Active Plugin Hook
+        register_activation_hook(__FILE__, array($this, 'plugin_activate'));
+        // Deactive Plugin Hook
+        register_deactivation_hook(__FILE__, array($this, 'plugin_deactivate'));
     }
 
     /**
@@ -157,7 +157,11 @@ class Cst_Poll {
     public function enqueue_backend_css_js()
     {
 
-        wp_enqueue_style('cst_poll_backend_css', plugin_dir_url(__FILE__) . '/css/admin.css');
+        wp_register_style('cst_poll_backend_css', plugin_dir_url(__FILE__) . '/assets/css/admin.css', array(), null);
+        wp_register_script( 'cst_poll_backend_js', plugin_dir_url(__FILE__) . '/assets/js/admin.js', array(), null, true );
+        wp_enqueue_script('jquery');
+        wp_enqueue_style('cst_poll_backend_css');
+        wp_enqueue_script('cst_poll_backend_js');
     }
 
     /**
@@ -168,7 +172,11 @@ class Cst_Poll {
     public function enqueue_frontend_css_js()
     {
 
-        wp_enqueue_style('cst_poll_frontend_css', plugin_dir_url(__FILE__) . '/css/style.css');
+        wp_register_style('cst_poll_frontend_css', plugin_dir_url(__FILE__) . '/assets/css/style.css', array(), null);
+        wp_register_script( 'cst_poll_frontend_js', plugin_dir_url(__FILE__) . '/assets/js/main.js', array(), null, true );
+        wp_enqueue_script('jquery');
+        wp_enqueue_style('cst_poll_frontend_css');
+        wp_enqueue_script('cst_poll_frontend_js');
     }
 
     /**
